@@ -1,29 +1,4 @@
-import json
-import os
-
-class ToDoList:
-    def __init__(self, filename="tasks.json"):
-        self.filename = filename
-        self.tasks = []
-        self.load_tasks()
-
-    def add_task(self, description):
-        self.tasks.append(description)
-        self.save_tasks()
-
-    def list_tasks(self):
-        return self.tasks
-    
-    def save_tasks(self):
-        with open(self.filename, "w") as f:
-            json.dump(self.tasks, f, indent=4)
-    
-    def load_tasks(self):
-        if os.path.exists(self.filename):
-            with open(self.filename, "r") as f:
-                self.tasks = json.load(f)
-        else:
-            self.tasks = []
+from app import ToDoList
 
 class ToDoApp:
     def __init__(self):
@@ -34,7 +9,9 @@ class ToDoApp:
             print("\nChoose an option:")
             print("1. Add task")
             print("2. Show tasks")
-            print("3. Exit")
+            print("3. Mark task as completed")
+            print("4. Delete task")
+            print("5. Exit")
 
             choice = input("> ")
 
@@ -43,23 +20,48 @@ class ToDoApp:
             elif choice == "2":
                 self.handle_list()
             elif choice == "3":
-                print("Exiting the realm.")
+                self.handle_complete()
+            elif choice == "4":
+                self.handle_delete()
+            elif choice == "5":
+                print("Goodbye, task-slayer.")
                 break
             else:
-                print("Unrecognized command.")
+                print("Invalid choice.")
 
     def handle_add(self):
-        description = input("Task description: ")
-        self.todo.add_task(description)
-        print(f"Added: {description}")
+        desc = input("Task description: ")
+        self.todo.add_task(desc)
+        print(f"Added: {desc}")
 
     def handle_list(self):
         tasks = self.todo.list_tasks()
         if not tasks:
-            print("No tasks yet.")
+            print("No tasks.")
+            return
+
+        print("\nTasks:")
+        for i, task in enumerate(tasks, 1):
+            status = "[✔]" if task.completed else "[ ]"
+            print(f"{i}. {status} {task.description}")
+
+    def handle_complete(self):
+        self.handle_list()
+        index = int(input("Number to complete: ")) - 1
+        task = self.todo.complete_task(index)
+        if task:
+            print(f"Completed: {task.description}")
         else:
-            for i, task in enumerate(tasks, 1):
-                print(f"{i}. {task}")
+            print("Invalid index.")
+
+    def handle_delete(self):
+        self.handle_list()
+        index = int(input("Number to delete: ")) - 1
+        removed = self.todo.delete_task(index)
+        if removed:
+            print(f"Deleted: {removed.description}")
+        else:
+            print("Invalid index.")
 
 
 if __name__ == "__main__":
