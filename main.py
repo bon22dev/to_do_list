@@ -1,13 +1,29 @@
+import json
+import os
+
 class ToDoList:
-    def __init__(self):
+    def __init__(self, filename="tasks.json"):
+        self.filename = filename
         self.tasks = []
+        self.load_tasks()
 
     def add_task(self, description):
         self.tasks.append(description)
+        self.save_tasks()
 
     def list_tasks(self):
         return self.tasks
-
+    
+    def save_tasks(self):
+        with open(self.filename, "w") as f:
+            json.dump(self.tasks, f, indent=4)
+    
+    def load_tasks(self):
+        if os.path.exists(self.filename):
+            with open(self.filename, "r") as f:
+                self.tasks = json.load(f)
+        else:
+            self.tasks = []
 
 class ToDoApp:
     def __init__(self):
